@@ -1,0 +1,144 @@
+{
+  "name": "MCP-SERVER-Tool de Busca na Hotmart",
+  "nodes": [
+    {
+      "parameters": {
+        "workflowInputs": {
+          "values": [
+            {
+              "name": "e-mail"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        0,
+        0
+      ],
+      "id": "dca492f9-3caf-4526-a9e5-51974438bc02",
+      "name": "When Executed by Another Workflow"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api-sec-vlc.hotmart.com/security/oauth/token",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "Basic SUA API KEY DA HOTMART"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/x-www-form-urlencoded"
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "form-urlencoded",
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "grant_type",
+              "value": "client_credentials"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        272,
+        0
+      ],
+      "id": "eaff1451-b70d-420d-a4f9-d8d0bee102b7",
+      "name": "GERADOR DE TOKEN HOTMART"
+    },
+    {
+      "parameters": {
+        "url": "https://developers.hotmart.com/payments/api/v1/sales/history",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "buyer_email",
+              "value": "={{ $('When Executed by Another Workflow').item.json['e-mail'] }}"
+            }
+          ]
+        },
+        "sendHeaders": true,
+        "specifyHeaders": "json",
+        "jsonHeaders": "={\n  \"Authorization\": \"Bearer {{ $json.access_token }}\",\n  \"Content-Type\": \"application/json\"\n}",
+        "options": {
+          "redirect": {
+            "redirect": {
+              "followRedirects": false
+            }
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        592,
+        0
+      ],
+      "id": "f0bfb891-10ce-4c24-b001-9c0664635ae4",
+      "name": "Requisição de Busca de Dados - Hotmart"
+    },
+    {
+      "parameters": {
+        "content": "# MCP Dedicado a busca de dados na HOTMART.\n\nEsse MCP é baseado em 3 passos. \n\n1. Entrada do dado principal que será o e-mail a ser consultado. \n2. Geração de token de consulta na hotmart\n3. Consulta baseado no e-mail enviado.",
+        "height": 288,
+        "width": 480
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        128,
+        240
+      ],
+      "typeVersion": 1,
+      "id": "2f2d4676-32b6-4831-bb7c-f4635c46c1c9",
+      "name": "Sticky Note"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When Executed by Another Workflow": {
+      "main": [
+        [
+          {
+            "node": "GERADOR DE TOKEN HOTMART",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "GERADOR DE TOKEN HOTMART": {
+      "main": [
+        [
+          {
+            "node": "Requisição de Busca de Dados - Hotmart",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "634f2aa7-dd76-4bb2-8246-5fbb7d63c100",
+  "meta": {
+    "instanceId": "85b289b18d26648fefa8c4cfe398240a9bb5a2160b6a8d46e50adfc5d6c26692"
+  },
+  "id": "iSFaq2vuKj0etgUT",
+  "tags": []
+}
